@@ -1,27 +1,35 @@
-import mailer from 'nodemailer';
+// MailingService.js
+import nodemailer from 'nodemailer';
 import config from '../../config/config.js';
 
-export default class MailingService {
-    constructor(){
-        this.client = mailer.createTransport({
-            service:config.mailing.SERVICE,
-            port: 587,
-            auth:{
-                user: config.mailing.USER,
-                pass: config.mailing.PASSWORD
+class MailingService {
+    constructor() {
+        this.client = nodemailer.createTransport({
+            service: config.mailing.service,
+            port: config.mailing.port,
+            auth: {
+                user: config.mailing.auth.user,
+                pass: config.mailing.auth.pass
             }
-        })
+        });
     }
 
-    sendSimpleMail = async({from, to, subject, html, attachments=[]})=>{
-        let result =  await this.client.sendMail({
-            from,
-            to,
-            subject,
-            html,
-            attachments
-        })
-        console.log(result);
-        return result
+    async sendSimpleMail({ from, to, subject, html, attachments = [] }) {
+        try {
+            const result = await this.client.sendMail({
+                from,
+                to,
+                subject,
+                html,
+                attachments
+            });
+            console.log(result);
+            return result;
+        } catch (error) {
+            console.error(`Error sending email: ${error}`);
+            throw error;
+        }
     }
 }
+
+export default MailingService;
