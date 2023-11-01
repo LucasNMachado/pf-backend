@@ -17,15 +17,6 @@ class MessagesService {
     }
   }
 
-  async getMessageById(id) {
-    try {
-      const message = await this.messages.getMessageById(id);
-      return message;
-    } catch (error) {
-      throw new Error(`Error al buscar un mensaje con ID (${id}) de la database: ${error.message}`);
-    }
-  }
-
   async addMessage(sender, content) {
     try {
       if (!sender || !content) {
