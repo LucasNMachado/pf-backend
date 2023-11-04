@@ -1,4 +1,4 @@
-import UsersService from "../services/UsersService.js";
+import UsersService from "../services/usersService.js";
 import UserDTO from "./UserDTO.js";
 import CustomError from "./CustomError.js";
 import EErrors from "./ErrorsEnums.js";
