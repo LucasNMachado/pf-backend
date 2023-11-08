@@ -1,7 +1,7 @@
 import { Router } from 'express';
-import jwt from 'jsonwebtoken';
+import handlePolicies from '../config/handlePoliciesCfg'
 
-export default class MyOwnRouter {
+export default class MyRouter {
     constructor() {
         this.router = Router();
         this.init();

@@ -27,7 +27,7 @@ class ProductsService {
     }
   }
 
-  async getProductById(id) {
+  async getProductsById(id) {
     try {
       const product = await this.productsRepository.getProductById(id);
       if (!product) {
