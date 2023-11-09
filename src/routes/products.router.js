@@ -4,8 +4,7 @@ import ProductsController from './controllers/productsController.js';
 
 export default class ProductsRouter extends MyRouter {
     init() {
-       
-
+        
         this.get('/', ['PUBLIC'], ProductsController.getProduct);
         this.get('/:pid', ['PUBLIC'], ProductsController.getProductById);
         this.post('/', ['PUBLIC'], ProductsController.productAdd);

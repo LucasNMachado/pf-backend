@@ -1,60 +1,44 @@
-import { addLogger } from "./utils/logger.js";
 import express from "express";
 import MongoStore from "connect-mongo";
+import mongoose from "mongoose";
+import cookieParser from "cookie-parser";
+import handlebars from 'express-handlebars';
+import session from "express-session";
+import passport from "passport";
+import initializePassport from "./config/passport.config.js";
 import CartsRouter from "./routes/carts.router.js";
 import MessagesRouter from "./routes/messages.router.js";
 import ProductsRouter from "./routes/products.router.js";
 import SessionsRouter from "./routes/sessions.router.js";
 import UsersRouter from "./routes/users.router.js";
 import ViewsRouter from "./routes/views.router.js";
-
-
-import passport from "passport";
-import initializePassport from "./config/passport.config.js";
-import path from "path";
-import homeRouter from "./routes/homeRoutes.js";
-import ProductManager from "../src/dao/mongo/productManager.js";
-import MessageManager from "../src/dao/mongo/messageManager.js";
-
-
-import exphbs from "express-handlebars";
-import mongoose from "mongoose";
-import http from "http";
-import session from "express-session";
-import __dirname from "./utils/utils.js";
 import { Server } from "socket.io";
-import config from "./config/config.js";
-
+import { addLogger } from "./utils/logger.js";
+import __dirname from "./utils/utils.js";
 import swaggerJSDoc from 'swagger-jsdoc';
 import swaggerUIExpress from 'swagger-ui-express';
 
 
-const __filename = new URL(import.meta.url).pathname;
-
 const app = express();
 const port = config.port || 8080;
-
-
-
 app.use(addLogger);
+
 const server = http.createServer(app);
 const io = new Server(server);
 
-//logger
-app.get("/loggerTest", (req, res) => {
-  req.logger.debug("Esto es un mensaje de depuración");
-  req.logger.info("Esto es un mensaje de información");
-  req.logger.warn("Esto es un mensaje de advertencia");
-  req.logger.error("Esto es un mensaje de error");
-  req.logger.fatal("Esto es un mensaje fatal");
-
-  res.send("Logs generados con éxito en /loggerTest");
-});
 
 io.on("connection", async (socket) => {
   console.log("New connection: ", socket.id);
 
-  socket.emit("products", await ProductManager.getProducts());
+  app.engine("handlebars", handlebars.engine);
+  app.set("view engine", "handlebars");
+  app.set('views', __dirname + '/views');
+  app.use("/public", express.static(__dirname, "/public"));
+
+  // express
+  
+  app.use(express.json());
+  app.use(express.urlencoded({ extended: true }));
 
   socket.on("new-product", async (data) => {
     console.log(data);
@@ -89,7 +73,7 @@ mongoose
     process.exit(1);
   });
 
-// conexión a session de mongo
+// session mongo
 
 app.use(
   session({
@@ -104,6 +88,8 @@ app.use(
   })
 );
 
+// passport
+
 initializePassport();
 app.use(passport.initialize());
 app.use(passport.session());
@@ -117,6 +103,17 @@ app.use("/api/sessions", SessionsRouter);
 app.use("/api/users", UsersRouter);
 app.use('/apidocs', swaggerUIExpress.serve, swaggerUIExpress.setup(specs));
 
+//logger
+
+app.get("/loggerTest", (req, res) => {
+  req.logger.debug("Esto es un mensaje de depuración");
+  req.logger.info("Esto es un mensaje de información");
+  req.logger.warn("Esto es un mensaje de advertencia");
+  req.logger.error("Esto es un mensaje de error");
+  req.logger.fatal("Esto es un mensaje fatal");
+
+  res.send("Logs generados con éxito en /loggerTest");
+});
 
 
 // swagger
