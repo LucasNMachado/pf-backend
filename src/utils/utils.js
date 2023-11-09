@@ -32,6 +32,23 @@ export const authToken = (req, res, next) => {
         next();
     })
 }
+export const uploader = (folderName) => {
+    return multer({
+        storage: multer.diskStorage({
+            destination: function (req, file, cb) {
+                cb(null, `${__dirname}/public/uploads/${folderName}`);
+            },
+            filename: function (req, file, cb) {
+                console.log("Archivo subido correctamente: ", file);
+                cb(null, file.originalname);
+            },
+        }),
+        onError: function (err, next) {
+            console.log("Error al subir el archivo: ", err);
+            next();
+        },
+    })
+}
 
 
 export default __dirname;

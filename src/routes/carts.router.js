@@ -1,8 +1,8 @@
 
-import Router from './router.js';
+import MyRouter from './router.js';
 import CartsController from './controllers/cartsController.js';
 
-export default class CartsRouter extends Router {
+export default class CartsRouter extends MyRouter {
     init() {
         const cartsController = new CartsController();
 
