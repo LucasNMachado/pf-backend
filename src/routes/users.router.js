@@ -1,7 +1,7 @@
 import MyRouter from './router.js';
 import UserController from '../controllers/usersController.js';
 
-export default class UserRouter extends MyRouter {
+export default class UsersRouter extends MyRouter {
   init() {
     this.get("/", ['USER_ADMIN'], UserController.getUsers);
 

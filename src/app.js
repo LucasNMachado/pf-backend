@@ -1,16 +1,22 @@
 import { addLogger } from "./utils/logger.js";
 import express from "express";
 import MongoStore from "connect-mongo";
-import viewsRoutes from "./routes/viewsRoutes.js";
-import sessionsRoutes from "./routes/sessionsRoutes.js";
+import CartsRouter from "./routes/carts.router.js";
+import MessagesRouter from "./routes/messages.router.js";
+import ProductsRouter from "./routes/products.router.js";
+import SessionsRouter from "./routes/sessions.router.js";
+import UsersRouter from "./routes/users.router.js";
+import ViewsRouter from "./routes/views.router.js";
+
+
 import passport from "passport";
 import initializePassport from "./config/passport.config.js";
 import path from "path";
 import homeRouter from "./routes/homeRoutes.js";
 import ProductManager from "../src/dao/mongo/productManager.js";
 import MessageManager from "../src/dao/mongo/messageManager.js";
-import productsRouter from "./routes/productsRoutes.js";
-import cartsRouter from "./routes/cartsRoutes.js";
+
+
 import exphbs from "express-handlebars";
 import mongoose from "mongoose";
 import http from "http";
@@ -18,7 +24,7 @@ import session from "express-session";
 import __dirname from "./utils/utils.js";
 import { Server } from "socket.io";
 import config from "./config/config.js";
-import DaoFactory from "./dao/factory.js";
+
 import swaggerJSDoc from 'swagger-jsdoc';
 import swaggerUIExpress from 'swagger-ui-express';
 
@@ -27,19 +33,9 @@ const __filename = new URL(import.meta.url).pathname;
 
 const app = express();
 const port = config.port || 8080;
-const daoInstances = DaoFactory.getDao();
 
-app.engine("handlebars", exphbs.engine);
-app.set("view engine", "handlebars");
-app.set("views", path.join(__dirname, "src", "views"));
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
-app.use("/public", express.static(path.join(__dirname, "../public")));
-app.use("/api/products", productsRouter(daoInstances.productManager));
-app.use("/api/carts", cartsRouter(daoInstances.cartManager));
-app.use("/", homeRouter);
-app.use("/", viewsRoutes);
-app.use("/api/sessions", sessionsRoutes);
+
+
 app.use(addLogger);
 const server = http.createServer(app);
 const io = new Server(server);
@@ -111,16 +107,17 @@ app.use(
 initializePassport();
 app.use(passport.initialize());
 app.use(passport.session());
-app.get("/api/session", (req, res) => {
-  if (!req.session.count) {
-    req.session.count = 1;
-    res.send("Bienvenido a la pagina");
-    return;
-  }
 
-  req.session.count++;
-  res.send(`Usted ha visitado la pagina ${req.session.count} veces`);
-});
+app.use(express.static(__dirname + "/public"));
+app.use("/", ViewsRouter);
+app.use("/api/products", ProductsRouter );
+app.use("/api/cart", CartsRouter);
+app.use("/api/messages", MessagesRouter);
+app.use("/api/sessions", SessionsRouter);
+app.use("/api/users", UsersRouter);
+app.use('/apidocs', swaggerUIExpress.serve, swaggerUIExpress.setup(specs));
+
+
 
 // swagger
 
